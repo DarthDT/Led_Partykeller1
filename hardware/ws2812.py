@@ -5,13 +5,13 @@ try:
     from rpi_ws281x import PixelStrip, Color
 
     HAS_HARDWARE = True
-except (ImportError, RuntimeError):
+except Exception as e:
     HAS_HARDWARE = False
-    print("⚠️ rpi_ws281x nicht gefunden/unterstützt (PC-Modus aktiv). Fallback geladen.")
+    print(f"⚠️ rpi_ws281x nicht geladen ({type(e).__name__}: {e}). Fallback geladen.")
 
 
 class LEDStripHardware:
-    def __init__(self, num_leds=60, pin=18, brightness=255, channel=0):
+    def __init__(self, num_leds=150, pin=18, brightness=100, channel=0):
         """
         Initialisiert den echten WS2812B / ARGB Strip oder den Fallback-Puffer am PC.
         :param num_leds: Anzahl der LEDs
@@ -23,9 +23,13 @@ class LEDStripHardware:
         self.pin = pin
 
         if HAS_HARDWARE:
-            # rpi_ws281x Hardware-Konfiguration (800kHz Frequenz, DMA Kanal 10)
-            self.strip = PixelStrip(num_leds, pin, 800000, 10, False, brightness, channel)
-            self.strip.begin()
+            try:
+                # rpi_ws281x Hardware-Konfiguration (800kHz Frequenz, DMA Kanal 10)
+                self.strip = PixelStrip(num_leds, pin, 800000, 10, False, brightness, channel)
+                self.strip.begin()
+            except Exception as e:
+                print(f"⚠️ Fehler beim Starten des Hardware-Strips ({e}). Schalte auf Fallback.")
+                self.strip = None
         else:
             # Virtueller Speicher-Puffer für Tests auf dem PC
             self.pixels = [(0, 0, 0)] * num_leds
@@ -34,14 +38,16 @@ class LEDStripHardware:
         """Setzt eine einzelne LED (Farbe als RGB-Tuple: z.B. (255, 0, 0))."""
         if 0 <= index < self.num_leds:
             r, g, b = color
-            if HAS_HARDWARE:
+            if HAS_HARDWARE and hasattr(self, 'strip') and self.strip is not None:
                 self.strip.setPixelColor(index, Color(int(r), int(g), int(b)))
             else:
+                if not hasattr(self, 'pixels'):
+                    self.pixels = [(0, 0, 0)] * self.num_leds
                 self.pixels[index] = (int(r), int(g), int(b))
 
     def show(self):
         """Überträgt die Farbdaten an die LEDs."""
-        if HAS_HARDWARE:
+        if HAS_HARDWARE and hasattr(self, 'strip') and self.strip is not None:
             self.strip.show()
 
     def fill(self, color: tuple):
