@@ -1,16 +1,18 @@
+import os
 import time
-import pygame
 import tkinter as tk
+
+import pygame
 
 from core.preset_manager import PresetManager
 from gui import ControlPanelGUI
 
-# Hardware & Simulator Imports
+# Hardware & Combined Imports
 from hardware.simulator import LEDStripSimulator
 from hardware.ws2812 import LEDStripHardware
 from hardware.combined import CombinedLEDStrip
 
-# Effekt Imports
+# Effekte
 from effects.solid import SolidEffect
 from effects.chase import ChaseEffect
 from effects.wave import WaveEffect
@@ -25,12 +27,11 @@ def main():
     sim_strip = LEDStripSimulator(num_leds=150)
     hw_strip = LEDStripHardware(num_leds=150, pin=18)
 
-    # 2. In den Combined-Strip verpacken
+    # 2. Im CombinedLEDStrip bündeln
     strip = CombinedLEDStrip(sim_strip, hw_strip)
 
-    # 3. Manager & Presets einrichten
+    # 3. Manager & Effekte einrichten
     manager = PresetManager()
-
     manager.add_preset("solid_color", SolidEffect(name="Dauerleuchten", r=255, g=0, b=0))
     manager.add_preset("chase_effect", ChaseEffect(
         name="Lauflicht Dynamisch",
@@ -55,27 +56,26 @@ def main():
     # 4. Tkinter GUI starten
     gui = ControlPanelGUI(manager)
 
-    # 5. Haupt-Schleife
+    # 5. Hauptschleife
     running = True
     while running:
-        # Tkinter GUI aktualisieren
+        # Tkinter GUI-Events verarbeiten
         try:
             gui.update()
         except tk.TclError:
-            # Wird geworfen, wenn das Tkinter-Fenster geschlossen wird
             break
 
-        # Pygame Events verarbeiten
+        # Pygame Window-Events verarbeiten
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
 
-        # Aktiven Effekt berechnen & auf den Combined-Strip schreiben
+        # Aktiven Effekt aktualisieren
         current_effect = manager.get_active_effect()
         if current_effect:
             current_effect.update(strip)
 
-        # Überträgt die Farben synchron an Simulator UND GPIO 18 Hardware
+        # Rendert sowohl das Pygame-Fenster als auch die GPIO 18 LEDs
         strip.show()
         time.sleep(0.01)
 
