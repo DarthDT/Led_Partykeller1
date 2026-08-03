@@ -31,7 +31,7 @@ class MusicStrobeEffect(Effect):
 
         self.active_sparkles = []
         self.last_beat_time = 0.0
-        self.beat_cooldown = 0.08  # Mindestabstand zwischen Beat-Triggern (in Sekunden)
+        self.beat_cooldown = 0.1  # Mindestabstand zwischen Beat-Triggern (in Sekunden)
 
         # Audio Stream starten
         self.stream = sd.InputStream(
@@ -57,7 +57,7 @@ class MusicStrobeEffect(Effect):
 
     def _spawn_beat_sparkles(self, volume):
         """Erzeugt bei einem Beat mehrere Glitzerpunkte verteilt über den Strip."""
-        num_sparkles = random.randint(4, 8)  # 3 bis 6 Glitzer-Cluster pro Beat Drop
+        num_sparkles = random.randint(6, 10)  # 3 bis 6 Glitzer-Cluster pro Beat Drop
 
         for _ in range(num_sparkles):
             # Entscheiden, ob dieser Blitz weiß wird (falls Option aktiv) oder eine Farbwahl trifft
@@ -91,7 +91,7 @@ class MusicStrobeEffect(Effect):
             center = int(sparkle.center_pos * num_leds)
 
             # 2 bis 3 Haupt-LEDs extrem hell + außenrum gefadet
-            # Radius 2 bedeutet: -2, -1, 0 (Mitte), +1, +2 (insgesamt 5 LEDs Abdeckung)
+            # Radius 2 bedeutet:  -2, -1, 0 (Mitte), +1, +2,(insgesamt 7 LEDs Abdeckung)
             for offset in [-2, -1, 0, 1, 2]:
                 led_idx = center + offset
                 if 0 <= led_idx < num_leds:

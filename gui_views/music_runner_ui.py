@@ -22,9 +22,9 @@ class MusicRunnerUI:
         sliders_frame = ttk.Frame(self.frame)
         sliders_frame.pack(fill=tk.X, pady=5)
 
-        ttk.Label(sliders_frame, text="Grundhelligkeit (10% - 90%):").grid(row=0, column=0, sticky=tk.W)
+        ttk.Label(sliders_frame, text="Grundhelligkeit:").grid(row=0, column=0, sticky=tk.W)
         s_bright = ttk.Scale(
-            sliders_frame, from_=0.10, to=0.90, value=self.effect.base_brightness,
+            sliders_frame, from_=0.00, to=1.0, value=self.effect.base_brightness,
             command=lambda v: setattr(self.effect, 'base_brightness', float(v))
         )
         s_bright.grid(row=0, column=1, sticky=tk.EW, padx=5, pady=2)

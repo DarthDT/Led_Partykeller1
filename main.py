@@ -12,10 +12,12 @@ from effects.gradient import GradientEffect
 from effects.vu_meter import VuMeterEffect
 from effects.music_strobe import MusicStrobeEffect
 from gui import ControlPanelGUI
+from hardware.ws2812 import LEDStripHardware
 
 def main():
     # 1. Hardware/Simulator & Manager
     strip = LEDStripSimulator(num_leds=150)
+    H_strip = LEDStripHardware(num_leds=150, pin=18)
     manager = PresetManager()
 
     # 2. Presets registrieren
